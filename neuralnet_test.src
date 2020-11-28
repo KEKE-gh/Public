@@ -1,0 +1,52 @@
+neuralnet = {}
+neuralnet.results = []
+
+neuralnet.run = function(in1,in2,exp_res)
+	neuralnet.Weights = []
+	get_weight = function()
+		list = [.1,.2,.3,.4,.5,.6,.7,.8,.9]
+		list.shuffle ; return list.pull
+	end function
+	
+	n = {}
+	n.neuron = function(inp1,inp2,w1,w2,bias)
+		i = {}
+		i.output = (inp1 * w1) + (inp2 * w2) + bias
+		i.weights = [w1,w2] ;neuralnet.Weights.push(i.weights)
+		return i
+	end function
+	
+	
+	activate = function(output)
+		x = {};x.in1 = in1;x.in2 = in2;x.exp_res = exp_res;x.weights = neuralnet.Weights;
+		if output == exp_res then // Expected result obtained
+			if neuralnet.results.indexOf(x) == null then
+				neuralnet.results.push(x)
+				print("-" * 50 + "\n[+] Valid output: " + output);print(x.weights)
+			end if
+		else
+			//print("-" * 50 + "\n[+] Invalid output: " + output);print(x.weights)
+		end if
+		neuralnet.run(in1,in2,exp_res) 							// Restart with new random weights
+	end function
+	
+	n1 = new n;n2 = new n											// neuron 1,2 creation
+	h1 = new n;h2 = new n 											// hidden 1,2 layer creation
+	nn1 = n1.neuron(in1,in2,get_weight,get_weight,.1) 	// Output of neuron1, last number is bias
+	nn2 = n2.neuron(in1,in2,get_weight,get_weight,.2) 	// with bias you can adjust the output to wanted direction
+	o1 = ((nn1.output + nn2.output)  / 2) ; o2 = ((nn1.output + nn2.output)  / 2) // outputs of neurons 1 and 2
+	hh1 = h1.neuron(o1,o2,get_weight,get_weight,.5) 		// hidden layer
+	hh2 = h2.neuron(o1,o2,get_weight,get_weight,.1) 		// hidden layer
+	output = (hh1.output + hh2.output)  / 2 ;activate(output) // Output and activation, divided by amount of output
+end function
+
+// Trainer to find correct weights for expected result
+// When you have enought training data, set up weights manually for expected result
+// [0] and [1] = input values ,  [2] = expected result
+neuralnet.run(1,3,3)
+
+
+
+
+
+
